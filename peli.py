@@ -79,12 +79,12 @@ class Peli:
             self.kulma = (self.kulma + self.pyorimisvauhti) % 360
 
         if self.voimanlisays:
-            self.voima = min(self.voima + 1, 100)
+            self.voima = min(self.voima + 2, 100)
             # print (self.voima)
         
         if self.laukaisu:
             # print (f"Pam {self.voima}")
-            self.vauhti = self.voima / 10
+            self.vauhti = self.voima ** 2 / 100
             self.voima = 0
             self.laukaisu = False
         
@@ -94,7 +94,7 @@ class Peli:
             uusi_x = self.sijainti[0] + vauhti_x
             uusi_y = self.sijainti[1] + vauhti_y
             self.sijainti = (uusi_x, uusi_y)
-            self.vauhti *= 0.99
+            self.vauhti *= 0.99 # затухание
 
         # self.kulma -= ((360/60)/6)
         # self.kulma = (self.kulma - 3) % 360 # вращение картинки
@@ -107,6 +107,7 @@ class Peli:
         # laatikko = kuva.get_rect(center=keskipiste)
         laatikko = kuva.get_rect(center=self.sijainti) 
         self.naytto.blit(kuva, laatikko.topleft) # image coordinates
+        
         pygame.draw.rect(self.naytto, (0, 0, 0), (2, self.korkeus-19, 102, 17))
         pygame.draw.rect(self.naytto, (0, 255, 0), (3, self.korkeus-18, self.voima, 15))
         suuntapallo_x = self.leveys - 35
