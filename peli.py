@@ -4,7 +4,7 @@ from random import randint, random
 import pygame
 
 TAUSTAVARI = (180, 180, 240)  # (Red, Green, Blue), 0...255
-
+FPS = 60  # frames per second
 
 def main():
     peli = Peli()
@@ -36,8 +36,8 @@ class Peli:
             self.nayton_koko, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.raketti_iso = pygame.image.load("rocket_640r2.png")
         self.raketti_pieni = pygame.transform.rotozoom(self.raketti_iso, 0, 0.25)
-        self.juttu_iso = pygame.image.load("man.gif")
-        self.juttu_pieni = pygame.transform.rotozoom(self.juttu_iso, 0, 0.4)
+        self.juttu_iso = pygame.image.load("astronautti.png")
+        self.juttu_pieni = pygame.transform.rotozoom(self.juttu_iso, 0, 0.125)
         self.raketin_kulma = 0
         self.raketin_pyorimisvauhti = 0
         self.raketin_sijainti = (400, 300)
@@ -47,6 +47,8 @@ class Peli:
         self.voima = 0
         self.voimanlisays = False
         self.laukaisu = False
+        self.pisteet = 0
+        self.aikaa_jaljella = 20 * FPS
 
     def arvo_uusi_juttu(self):        
         self.jutun_kulma = 0
@@ -82,6 +84,11 @@ class Peli:
                 self.laukaisu = True           
 
     def pelilogiikka(self):
+        if self.aikaa_jaljella > 0:
+            self.aikaa_jaljella -= 1
+        else:
+            return
+
         if self.hiiren_nappi_pohjassa:
             self.raketin_sijainti = pygame.mouse.get_pos()
 
@@ -111,6 +118,8 @@ class Peli:
             (self.raketin_sijainti[0] - self.jutun_sijainti[0])**2 +
             (self.raketin_sijainti[1] - self.jutun_sijainti[1])**2)
         if etaisyys_2 < 5000:
+            self.pisteet += 1
+            self.aikaa_jaljella += 2 * FPS
             self.arvo_uusi_juttu()
 
     def renderointi(self):
@@ -136,9 +145,24 @@ class Peli:
         pygame.draw.line(self.naytto, (255, 0, 0),
                         (suuntapallo_x, suuntapallo_y),
                         (suuntapallo_x + suuntavektori_x, suuntapallo_y + suuntavektori_y))
+        # Pisteet
+        fontti = pygame.font.Font("font/SyneMono-Regular.ttf", 32)
+        teksti_kuva = fontti.render(f"Pisteet:{self.pisteet:3}", True, (128, 0, 128))
+        self.naytto.blit(teksti_kuva, (self.leveys - teksti_kuva.get_width() - 10, 10))
+        # Aika
+        fontti = pygame.font.Font("font/SyneMono-Regular.ttf", 32)
+        teksti_kuva = fontti.render(f"Aika:{self.aikaa_jaljella:3}", True, (128, 0, 128))
+        self.naytto.blit(teksti_kuva, (10, 10))
+        # Loppu teksti
+        if self.aikaa_jaljella <= 0:
+            fontti = pygame.font.Font("font/SyneMono-Regular.ttf", 96)
+            teksti_kuva = fontti.render("GAME OVER!", True, (128, 0, 128))
+            self.naytto.blit(teksti_kuva, (
+                (self.leveys - teksti_kuva.get_width()) / 2,
+                (self.korkeus - teksti_kuva.get_height()) / 2))
         # Päivitä ruutu
         pygame.display.flip()
-        self.kello.tick(60)  # 60 fps (frames per second)
+        self.kello.tick(FPS)
 
     def vaihda_kokoruututila(self):
         self.kokoruutu = not self.kokoruutu
