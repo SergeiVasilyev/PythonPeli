@@ -14,8 +14,8 @@ class Peli:
     def __init__(self):
         self.ajossa = True
         self.naytto = None
-        self.leveys = 800
-        self.korkeus = 600
+        self.leveys = 1280
+        self.korkeus = 720
         self.nayton_koko = (self.leveys, self.korkeus)
         # self.nayton_koko = (self.weight, self.height) = (800, 600)
 
@@ -43,6 +43,7 @@ class Peli:
         self.voima = 0
         self.sijainti = (400, 300)
         self.vauhti = 0
+        self.kokoruutu = False
         self.hiiren_nappi_pohjassa = False
         self.voimanlisays = False
         self.laukaisu = False
@@ -65,11 +66,17 @@ class Peli:
                 self.voimanlisays = True
 
         elif event.type == pygame.KEYUP:
-            if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
+            if event.key == pygame.K_ESCAPE:
+                self.ajossa = False
+            elif event.key == pygame.K_F11:
+                self.vaihda_kokoruututila()
+
+            elif event.key in (pygame.K_LEFT, pygame.K_RIGHT):
                 self.pyorimisvauhti = 0
             elif event.key == pygame.K_SPACE:
                 self.voimanlisays = False
                 self.laukaisu = True
+            
 
  
     def pelilogiikka(self):
@@ -107,7 +114,7 @@ class Peli:
         # laatikko = kuva.get_rect(center=keskipiste)
         laatikko = kuva.get_rect(center=self.sijainti) 
         self.naytto.blit(kuva, laatikko.topleft) # image coordinates
-        
+
         pygame.draw.rect(self.naytto, (0, 0, 0), (2, self.korkeus-19, 102, 17))
         pygame.draw.rect(self.naytto, (0, 255, 0), (3, self.korkeus-18, self.voima, 15))
         suuntapallo_x = self.leveys - 35
@@ -127,6 +134,17 @@ class Peli:
         self.kello.tick(60)  # 60 fps
         # if self.kulma % 100 == 0:
         #     print(self.kello.get_fps()) # текущий fps
+
+    def vaihda_kokoruututila (self):
+        self.kokoruutu = not self.kokoruutu
+        if self.kokoruutu:
+            pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        else:
+            pygame.display.set_mode(self.nayton_koko)
+        naytto = pygame.display.get_surface()
+        self.leveys = naytto.get_width()
+        self.korkeus = naytto.get_height()
+
 
  
     def lopetus(self):
